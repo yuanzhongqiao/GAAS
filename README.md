@@ -1,209 +1,290 @@
-# GAAS: Towards L5 Autonomous Flying Cars, a Robust Framework Extends GAAS with Lidars!
-
-![Star](https://img.shields.io/github/stars/generalized-intelligence/gaas?style=flat-square)![fork](https://img.shields.io/github/forks/generalized-intelligence/gaas?style=flat-square)![watch](https://img.shields.io/github/watchers/generalized-intelligence/gaas?style=flat-square)![BSD-3](https://img.shields.io/github/license/generalized-intelligence/gaas?style=flat-square)![twitter](https://img.shields.io/twitter/follow/GAAS_dev?style=social)
-
-
-## About GAAS
-
-**GAAS is an open-source program designed for fully autonomous VTOL(a.k.a flying cars) and drones.** GAAS stands for Generalized Autonomy Aviation System. We hope to accelerate human use of the sky through the full autonomy of flying vehicles. This project started in 2016 as a hobby for two students. 2019 we open-source the project and hope to develop GAAS full time in the long term.
-
-**GAAS provides a fully autonomous flight platform based on lidar, HD-map relocalization, path planning, and other modules for aircraft.** In contrast to the autopilot technology previously available only for consumer-grade drones, GAAS aims for robust  fully autonomous flight for human-carrying, and can be easily combined with national air traffic control. At GAAS you can see many of the automotive-grade(AG) technologies that were previously only available in self-driving cars. The whole framework is coupled loosely so you can customize your own modules and easily add them to GAAS.
-
-## Previews:
-
-![image](https://github.com/cyanine-gi/GAAS_contrib/raw/main/algorithms/preview_imgs/gaas_algorithms_rviz_preview_20200401.png)
-
-![image](https://github.com/cyanine-gi/GAAS_contrib/raw/main/algorithms/preview_imgs/gaas_algorithms_astar_planning_preview_20210409.png)
-
-![image](https://github.com/cyanine-gi/GAAS_contrib/raw/main/algorithms/preview_imgs/gaas_algorithms_rqt_graph_20200401.png)
-
-![image](https://github.com/cyanine-gi/GAAS_contrib/raw/main/algorithms/preview_imgs/gaas_algorithms_dynamic_objects_and_replanning.png)
-
-A video has been uploaded to show the whole pipeline. You may need to download this [video](https://github.com/cyanine-gi/GAAS_contrib_resources/blob/main/demos/gaas_contrib_test1_20210419_compressed.mp4?raw=true).
-
-
-## Differences between GAAS deprecated and new GAAS:
-
-We use lidars, as main sensor, rather than vision algorithms.
-
-
-GAAS deprecated is based on computer vision(CV), but fully vision-algorithms-based framework is not robust enough for autonomous flying.
-
-For flying cars and large cargo drones, vision-based algorithms suffer from:
-
-1. Lack of robustness, especially at night or over-exposed conditions. When air vehicles are flying at high speed, the localization is not stable enough which may cause severe accidents(vital to large air vehicles).
-
-2. Computer vision is computationally expensive and does not easily run in real-time on mobile devices.
-
-3. The neural network-based approach is accident-prone in extreme scenarios, and the failures are not easily reproducible.
-
-These problems are not allowed to occur in manned flight scenarios.
-
-Therefore, the introduction of LIDAR seems to be necessary at present. That's why we make new GAAS from scratch, and refactored all modules in cpp.
-
-## Build with:
-
-**Tested on OS: Ubuntu 18.04; PX4(for simulation only) 1.8.0.**
-
-### step<1> Check your network status
-
-    wget www.google.com
-
-### step<2> tools
-
-(optional) install **cuda 10.2** for all **gpu-based** algorithms, like icp_lidar_localization and the gpu version of ndt_localization.
-
-You may need to **upgrade cmake to at least 3.13** for building package icp_lidar_localization.
-
-    sudo apt install vim bwm-ng htop tmux git net-tools cmake-gui iotop curl
-
-### step<3> docker(for simulation only)
-
-    curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
-
-    sudo usermod -aG docker [your username]
-
-    docker pull gaas/mavros-gazebo7-px4
-
-### step<4> ros_melodic
-
-    ./install_ros_melodic.sh
-
-### step<5> opencv 3.4.5
-
-    sudo apt install cmake-qt-gui
-    
-[Download opencv 3.4.5 and unzip]
-
-    cd opencv-3.4.5/
-    mkdir build&&cd build&&cmake-gui ..
-    
-[Configure your opencv cmake options in cmake-gui]
-    
-    make -j4&&sudo make install
-
-### step<6> glog
-
-    git clone https://github.com/google/glog.git
-    cd glog
-    git checkout -b v0.4.0
-    mkdir build&&cd build
-    cmake ..
-    make 
-    sudo make install
-
-### step<7> pcl 1.8.0 build from source
-
-[Download pcl 1.8.0 and unzip]
-
-    cd pcl-1.8.0
-    mkdir build&&cd build&&cmake-gui ..
-
-[Configure your pcl cmake options in cmake-gui]
-
-    make -j4
-    sudo make install
-
-### step<8> (optional) upgrade your gazebo for simulation
-
-    cd GAAS/simulation
-    ./upgrade_gazebo.sh
-
-
-
-## Getting Started
-
-To build the project, setup all dependencies, run:
-
-    ./build_all.sh
-
-To run GAAS_contrib algorithms:
-
-    cd algorithms
-    ./run_gaas_contrib_algorithms.sh
-
-Start simulation (or play a rosbag instead):
-
-    cd simulation&&./scripts/prepare_simulation.sh
-    
-or:
-
-    rosbag play --clock [path_to_your_rosbag]
-
-**And checkout your L5 flying car demo in simulation environment!**
-
-## License
-
-GAAS is under BSD 3-Clause License.
-
-## Features
-
-1. Simulation env with 32 lines lidar and stereo cameras.
-
-2. Spinning lidar mapping and NDT matching localization.
-
-Check out simulation/README.md to get more details of simulation env setup.
-
-## Roadmap:
-
-#### 1.  Gazebo simulation env construction, including spinning lidars and non-repetitive lidars and stereo cameras.
-
-(1). Livox Horizon + Forward Stereo Camera --Done.
-
-(2). Velodyne HDL-32 + Forward Stereo Camera --Done.
-
-#### 2. Accelerate compiling and deployment of GAAS.
-
-#### 3. Implement some LIDAR (mechanical/solid-state) based algorithms, and implement one key start in the simulation environment.
-
-## Checklist:
-
-(1). Lidar Points to Image Projection-- Done.
-
-(2). Euclidean Cluster Extraction. --Done.
-
-(3). Global Coordinate based HD-Map Building. --Done.
-
-(4). NDT Lidar Localization(CPU/Cuda) --Done.
-
-(5). Downsampling Node --Done.
-
-(6). A* Path Planner --Done.
-
-(7). Refactored px4 Offboard Commander --Done.
-
-(8). Dynamic Obstacles Generation and Replanning --Done.
-
-(9). Jetson AGX Xavier Adaptation --Done.
-
-(10). Interactive GUI Target Selector in HD-maps --Done.
-
-(11). Multiple Submaps Switching --TODO
-
-(12). IMU-Preintegration and High-Frequency Localization --Done.
-
-(13). VTOL Mode Switching --TODO.
-
-(14). Decentralized Robust Ground Control Station --TODO.
-
-(15). Generalized Flight Controller State Management --Done.
-
-(16). PX4 State Reporter --Done.
-
-(17). HUD Module --Done.
-
-(18). Cuda-based Multiple Lidar Pointclouds ICP Localization --Done.
-
-(19). Ground Points Removal Preprocessing --Done.
-
-(20). System State Surveillance Service --Done.
-
-(21). HTTP Server on Ground Control Station --TODO.
-
-(22). Multiple Spinning Lidar Support --Done.
-
-(23). Airsim Simulation Env Support --Done.
-
-## Current status:
-
-Adding logics for flight stage manager module. Including flight stage transfer service clients(triggered by mission config file) and servers(including localization module, flight control commander module and target navigation module.) 
+<div class="Box-sc-g0xbh4-0 bJMeLZ js-snippet-clipboard-copy-unpositioned" data-hpc="true"><article class="markdown-body entry-content container-lg" itemprop="text"><h1 tabindex="-1" dir="auto"><a id="user-content-gaas-towards-l5-autonomous-flying-cars-a-robust-framework-extends-gaas-with-lidars" class="anchor" aria-hidden="true" tabindex="-1" href="#gaas-towards-l5-autonomous-flying-cars-a-robust-framework-extends-gaas-with-lidars"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">GAAS：迈向 L5 自动飞行汽车，强大的框架通过激光雷达扩展 GAAS！</font></font></h1>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer nofollow" href="https://camo.githubusercontent.com/75b8d8d17034febd52765d813bb649b0f0f2c80bcc9c59994ac71e785de064e1/68747470733a2f2f696d672e736869656c64732e696f2f6769746875622f73746172732f67656e6572616c697a65642d696e74656c6c6967656e63652f676161733f7374796c653d666c61742d737175617265"><img src="https://camo.githubusercontent.com/75b8d8d17034febd52765d813bb649b0f0f2c80bcc9c59994ac71e785de064e1/68747470733a2f2f696d672e736869656c64732e696f2f6769746875622f73746172732f67656e6572616c697a65642d696e74656c6c6967656e63652f676161733f7374796c653d666c61742d737175617265" alt="星星" data-canonical-src="https://img.shields.io/github/stars/generalized-intelligence/gaas?style=flat-square" style="max-width: 100%;"></a><a target="_blank" rel="noopener noreferrer nofollow" href="https://camo.githubusercontent.com/fe0174ec130b18c5787176209cf2b91579244bf8ab8540631b2104510be35d5b/68747470733a2f2f696d672e736869656c64732e696f2f6769746875622f666f726b732f67656e6572616c697a65642d696e74656c6c6967656e63652f676161733f7374796c653d666c61742d737175617265"><img src="https://camo.githubusercontent.com/fe0174ec130b18c5787176209cf2b91579244bf8ab8540631b2104510be35d5b/68747470733a2f2f696d672e736869656c64732e696f2f6769746875622f666f726b732f67656e6572616c697a65642d696e74656c6c6967656e63652f676161733f7374796c653d666c61742d737175617265" alt="叉" data-canonical-src="https://img.shields.io/github/forks/generalized-intelligence/gaas?style=flat-square" style="max-width: 100%;"></a><a target="_blank" rel="noopener noreferrer nofollow" href="https://camo.githubusercontent.com/47ae7837c8abd517630fbf0cf95c68dc471c4b048cc118f922d02b31fed4a8ca/68747470733a2f2f696d672e736869656c64732e696f2f6769746875622f77617463686572732f67656e6572616c697a65642d696e74656c6c6967656e63652f676161733f7374796c653d666c61742d737175617265"><img src="https://camo.githubusercontent.com/47ae7837c8abd517630fbf0cf95c68dc471c4b048cc118f922d02b31fed4a8ca/68747470733a2f2f696d672e736869656c64732e696f2f6769746875622f77617463686572732f67656e6572616c697a65642d696e74656c6c6967656e63652f676161733f7374796c653d666c61742d737175617265" alt="手表" data-canonical-src="https://img.shields.io/github/watchers/generalized-intelligence/gaas?style=flat-square" style="max-width: 100%;"></a><a target="_blank" rel="noopener noreferrer nofollow" href="https://camo.githubusercontent.com/0fd15061c4f356b9698cd82f4dd0b24cc9dfdfb7a7cd2614ca382bd699c9eb9f/68747470733a2f2f696d672e736869656c64732e696f2f6769746875622f6c6963656e73652f67656e6572616c697a65642d696e74656c6c6967656e63652f676161733f7374796c653d666c61742d737175617265"><img src="https://camo.githubusercontent.com/0fd15061c4f356b9698cd82f4dd0b24cc9dfdfb7a7cd2614ca382bd699c9eb9f/68747470733a2f2f696d672e736869656c64732e696f2f6769746875622f6c6963656e73652f67656e6572616c697a65642d696e74656c6c6967656e63652f676161733f7374796c653d666c61742d737175617265" alt="BSD-3" data-canonical-src="https://img.shields.io/github/license/generalized-intelligence/gaas?style=flat-square" style="max-width: 100%;"></a><a target="_blank" rel="noopener noreferrer nofollow" href="https://camo.githubusercontent.com/4bb51fbd705842ce30a4a596914f7eeda2ec2619bf207f1c03c39949fb804e66/68747470733a2f2f696d672e736869656c64732e696f2f747769747465722f666f6c6c6f772f474141535f6465763f7374796c653d736f6369616c"><img src="https://camo.githubusercontent.com/4bb51fbd705842ce30a4a596914f7eeda2ec2619bf207f1c03c39949fb804e66/68747470733a2f2f696d672e736869656c64732e696f2f747769747465722f666f6c6c6f772f474141535f6465763f7374796c653d736f6369616c" alt="推特" data-canonical-src="https://img.shields.io/twitter/follow/GAAS_dev?style=social" style="max-width: 100%;"></a></p>
+<h2 tabindex="-1" dir="auto"><a id="user-content-about-gaas" class="anchor" aria-hidden="true" tabindex="-1" href="#about-gaas"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">关于高斯</font></font></h2>
+<p dir="auto"><strong><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">GAAS 是一个开源程序，专为完全自主的 VTOL（又名飞行汽车）和无人机而设计。</font></font></strong><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">GAAS 代表通用自治航空系统。</font><font style="vertical-align: inherit;">我们希望通过飞行器的完全自主化来加速人类对天空的利用。</font><font style="vertical-align: inherit;">该项目始于 2016 年，最初是两名学生的业余爱好。</font><font style="vertical-align: inherit;">2019年我们开源了该项目，并希望长期全职开发GAAS。</font></font></p>
+<p dir="auto"><strong><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">GAAS为飞机提供基于激光雷达、高精地图重定位、路径规划等模块的完全自主飞行平台。</font></font></strong><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">与之前仅适用于消费级无人机的自动驾驶技术相比，GAAS 旨在实现强大的载人完全自主飞行，并且可以轻松与国家空中交通管制相结合。</font><font style="vertical-align: inherit;">在 GAAS，您可以看到许多以前仅适用于自动驾驶汽车的汽车级 (AG) 技术。</font><font style="vertical-align: inherit;">整个框架是松散耦合的，因此您可以自定义自己的模块并轻松将它们添加到 GAAS 中。</font></font></p>
+<h2 tabindex="-1" dir="auto"><a id="user-content-previews" class="anchor" aria-hidden="true" tabindex="-1" href="#previews"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">预览：</font></font></h2>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="https://github.com/cyanine-gi/GAAS_contrib/raw/main/algorithms/preview_imgs/gaas_algorithms_rviz_preview_20200401.png"><img src="https://github.com/cyanine-gi/GAAS_contrib/raw/main/algorithms/preview_imgs/gaas_algorithms_rviz_preview_20200401.png" alt="图像" style="max-width: 100%;"></a></p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="https://github.com/cyanine-gi/GAAS_contrib/raw/main/algorithms/preview_imgs/gaas_algorithms_astar_planning_preview_20210409.png"><img src="https://github.com/cyanine-gi/GAAS_contrib/raw/main/algorithms/preview_imgs/gaas_algorithms_astar_planning_preview_20210409.png" alt="图像" style="max-width: 100%;"></a></p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="https://github.com/cyanine-gi/GAAS_contrib/raw/main/algorithms/preview_imgs/gaas_algorithms_rqt_graph_20200401.png"><img src="https://github.com/cyanine-gi/GAAS_contrib/raw/main/algorithms/preview_imgs/gaas_algorithms_rqt_graph_20200401.png" alt="图像" style="max-width: 100%;"></a></p>
+<p dir="auto"><a target="_blank" rel="noopener noreferrer" href="https://github.com/cyanine-gi/GAAS_contrib/raw/main/algorithms/preview_imgs/gaas_algorithms_dynamic_objects_and_replanning.png"><img src="https://github.com/cyanine-gi/GAAS_contrib/raw/main/algorithms/preview_imgs/gaas_algorithms_dynamic_objects_and_replanning.png" alt="图像" style="max-width: 100%;"></a></p>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">已上传视频以显示整个管道。</font><font style="vertical-align: inherit;">您可能需要下载该</font></font><a href="https://github.com/cyanine-gi/GAAS_contrib_resources/blob/main/demos/gaas_contrib_test1_20210419_compressed.mp4?raw=true"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">视频</font></font></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">。</font></font></p>
+<h2 tabindex="-1" dir="auto"><a id="user-content-differences-between-gaas-deprecated-and-new-gaas" class="anchor" aria-hidden="true" tabindex="-1" href="#differences-between-gaas-deprecated-and-new-gaas"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">旧 GAAS 与新 GAAS 之间的差异：</font></font></h2>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">我们使用激光雷达作为主要传感器，而不是视觉算法。</font></font></p>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">已弃用的 GAAS 基于计算机视觉 (CV)，但完全基于视觉算法的框架对于自主飞行而言不够稳健。</font></font></p>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">对于飞行汽车和大型货运无人机，基于视觉的算法面临以下问题：</font></font></p>
+<ol dir="auto">
+<li>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">缺乏稳健性，尤其是在夜间或过度曝光的条件下。</font><font style="vertical-align: inherit;">当飞行器高速飞行时，定位不够稳定，可能会导致严重事故（对于大型飞行器至关重要）。</font></font></p>
+</li>
+<li>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">计算机视觉的计算成本很高，并且不容易在移动设备上实时运行。</font></font></p>
+</li>
+<li>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">基于神经网络的方法在极端场景下容易发生事故，而且故障不易重现。</font></font></p>
+</li>
+</ol>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">这些问题是载人飞行场景中不允许出现的。</font></font></p>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">因此，LIDAR的引入目前看来是有必要的。</font><font style="vertical-align: inherit;">这就是为什么我们从头开始制作新的GAAS，并在cpp中重构了所有模块。</font></font></p>
+<h2 tabindex="-1" dir="auto"><a id="user-content-build-with" class="anchor" aria-hidden="true" tabindex="-1" href="#build-with"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">构建：</font></font></h2>
+<p dir="auto"><strong><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">测试操作系统：Ubuntu 18.04；</font><font style="vertical-align: inherit;">PX4（仅用于模拟）1.8.0。</font></font></strong></p>
+<h3 tabindex="-1" dir="auto"><a id="user-content-step1-check-your-network-status" class="anchor" aria-hidden="true" tabindex="-1" href="#step1-check-your-network-status"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">步骤&lt;1&gt;检查您的网络状态</font></font></h3>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto"><pre class="notranslate"><code>wget www.google.com
+</code></pre><div class="zeroclipboard-container">
+    <clipboard-copy aria-label="Copy" class="ClipboardButton btn btn-invisible js-clipboard-copy m-2 p-0 tooltipped-no-delay d-flex flex-justify-center flex-items-center" data-copy-feedback="Copied!" data-tooltip-direction="w" value="wget www.google.com" tabindex="0" role="button">
+      <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-copy js-clipboard-copy-icon">
+    <path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path>
+</svg>
+      <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-check js-clipboard-check-icon color-fg-success d-none">
+    <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"></path>
+</svg>
+    </clipboard-copy>
+  </div></div>
+<h3 tabindex="-1" dir="auto"><a id="user-content-step2-tools" class="anchor" aria-hidden="true" tabindex="-1" href="#step2-tools"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">步骤&lt;2&gt;工具</font></font></h3>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">（可选）</font><font style="vertical-align: inherit;">为所有</font><strong><font style="vertical-align: inherit;">基于 GPU 的算法安装</font></strong></font><strong><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">cuda 10.2</font></font></strong><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">，例如 icp_lidar_localization 和 ndt_localization 的 GPU 版本。</font></font><strong><font style="vertical-align: inherit;"></font></strong><font style="vertical-align: inherit;"></font></p>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">您可能需要</font></font><strong><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">将 cmake 至少升级到 3.13</font></font></strong><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">才能构建包 icp_lidar_localization。</font></font></p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto"><pre class="notranslate"><code>sudo apt install vim bwm-ng htop tmux git net-tools cmake-gui iotop curl
+</code></pre><div class="zeroclipboard-container">
+    <clipboard-copy aria-label="Copy" class="ClipboardButton btn btn-invisible js-clipboard-copy m-2 p-0 tooltipped-no-delay d-flex flex-justify-center flex-items-center" data-copy-feedback="Copied!" data-tooltip-direction="w" value="sudo apt install vim bwm-ng htop tmux git net-tools cmake-gui iotop curl" tabindex="0" role="button">
+      <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-copy js-clipboard-copy-icon">
+    <path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path>
+</svg>
+      <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-check js-clipboard-check-icon color-fg-success d-none">
+    <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"></path>
+</svg>
+    </clipboard-copy>
+  </div></div>
+<h3 tabindex="-1" dir="auto"><a id="user-content-step3-dockerfor-simulation-only" class="anchor" aria-hidden="true" tabindex="-1" href="#step3-dockerfor-simulation-only"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">步骤&lt;3&gt; docker（仅用于模拟）</font></font></h3>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto"><pre class="notranslate"><code>curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
+
+sudo usermod -aG docker [your username]
+
+docker pull gaas/mavros-gazebo7-px4
+</code></pre><div class="zeroclipboard-container">
+    <clipboard-copy aria-label="Copy" class="ClipboardButton btn btn-invisible js-clipboard-copy m-2 p-0 tooltipped-no-delay d-flex flex-justify-center flex-items-center" data-copy-feedback="Copied!" data-tooltip-direction="w" value="curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
+
+sudo usermod -aG docker [your username]
+
+docker pull gaas/mavros-gazebo7-px4" tabindex="0" role="button">
+      <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-copy js-clipboard-copy-icon">
+    <path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path>
+</svg>
+      <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-check js-clipboard-check-icon color-fg-success d-none">
+    <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"></path>
+</svg>
+    </clipboard-copy>
+  </div></div>
+<h3 tabindex="-1" dir="auto"><a id="user-content-step4-ros_melodic" class="anchor" aria-hidden="true" tabindex="-1" href="#step4-ros_melodic"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">步骤&lt;4&gt; ros_melodic</font></font></h3>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto"><pre class="notranslate"><code>./install_ros_melodic.sh
+</code></pre><div class="zeroclipboard-container">
+    <clipboard-copy aria-label="Copy" class="ClipboardButton btn btn-invisible js-clipboard-copy m-2 p-0 tooltipped-no-delay d-flex flex-justify-center flex-items-center" data-copy-feedback="Copied!" data-tooltip-direction="w" value="./install_ros_melodic.sh" tabindex="0" role="button">
+      <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-copy js-clipboard-copy-icon">
+    <path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path>
+</svg>
+      <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-check js-clipboard-check-icon color-fg-success d-none">
+    <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"></path>
+</svg>
+    </clipboard-copy>
+  </div></div>
+<h3 tabindex="-1" dir="auto"><a id="user-content-step5-opencv-345" class="anchor" aria-hidden="true" tabindex="-1" href="#step5-opencv-345"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">步骤&lt;5&gt; opencv 3.4.5</font></font></h3>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto"><pre class="notranslate"><code>sudo apt install cmake-qt-gui
+</code></pre><div class="zeroclipboard-container">
+    <clipboard-copy aria-label="Copy" class="ClipboardButton btn btn-invisible js-clipboard-copy m-2 p-0 tooltipped-no-delay d-flex flex-justify-center flex-items-center" data-copy-feedback="Copied!" data-tooltip-direction="w" value="sudo apt install cmake-qt-gui" tabindex="0" role="button">
+      <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-copy js-clipboard-copy-icon">
+    <path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path>
+</svg>
+      <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-check js-clipboard-check-icon color-fg-success d-none">
+    <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"></path>
+</svg>
+    </clipboard-copy>
+  </div></div>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">【下载opencv 3.4.5并解压】</font></font></p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto"><pre class="notranslate"><code>cd opencv-3.4.5/
+mkdir build&amp;&amp;cd build&amp;&amp;cmake-gui ..
+</code></pre><div class="zeroclipboard-container">
+    <clipboard-copy aria-label="Copy" class="ClipboardButton btn btn-invisible js-clipboard-copy m-2 p-0 tooltipped-no-delay d-flex flex-justify-center flex-items-center" data-copy-feedback="Copied!" data-tooltip-direction="w" value="cd opencv-3.4.5/
+mkdir build&amp;&amp;cd build&amp;&amp;cmake-gui .." tabindex="0" role="button">
+      <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-copy js-clipboard-copy-icon">
+    <path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path>
+</svg>
+      <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-check js-clipboard-check-icon color-fg-success d-none">
+    <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"></path>
+</svg>
+    </clipboard-copy>
+  </div></div>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">[在 cmake-gui 中配置 opencv cmake 选项]</font></font></p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto"><pre class="notranslate"><code>make -j4&amp;&amp;sudo make install
+</code></pre><div class="zeroclipboard-container">
+    <clipboard-copy aria-label="Copy" class="ClipboardButton btn btn-invisible js-clipboard-copy m-2 p-0 tooltipped-no-delay d-flex flex-justify-center flex-items-center" data-copy-feedback="Copied!" data-tooltip-direction="w" value="make -j4&amp;&amp;sudo make install" tabindex="0" role="button">
+      <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-copy js-clipboard-copy-icon">
+    <path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path>
+</svg>
+      <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-check js-clipboard-check-icon color-fg-success d-none">
+    <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"></path>
+</svg>
+    </clipboard-copy>
+  </div></div>
+<h3 tabindex="-1" dir="auto"><a id="user-content-step6-glog" class="anchor" aria-hidden="true" tabindex="-1" href="#step6-glog"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">步骤&lt;6&gt; 日志</font></font></h3>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto"><pre class="notranslate"><code>git clone https://github.com/google/glog.git
+cd glog
+git checkout -b v0.4.0
+mkdir build&amp;&amp;cd build
+cmake ..
+make 
+sudo make install
+</code></pre><div class="zeroclipboard-container">
+    <clipboard-copy aria-label="Copy" class="ClipboardButton btn btn-invisible js-clipboard-copy m-2 p-0 tooltipped-no-delay d-flex flex-justify-center flex-items-center" data-copy-feedback="Copied!" data-tooltip-direction="w" value="git clone https://github.com/google/glog.git
+cd glog
+git checkout -b v0.4.0
+mkdir build&amp;&amp;cd build
+cmake ..
+make 
+sudo make install" tabindex="0" role="button">
+      <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-copy js-clipboard-copy-icon">
+    <path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path>
+</svg>
+      <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-check js-clipboard-check-icon color-fg-success d-none">
+    <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"></path>
+</svg>
+    </clipboard-copy>
+  </div></div>
+<h3 tabindex="-1" dir="auto"><a id="user-content-step7-pcl-180-build-from-source" class="anchor" aria-hidden="true" tabindex="-1" href="#step7-pcl-180-build-from-source"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">步骤&lt;7&gt; pcl 1.8.0 从源代码构建</font></font></h3>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">【下载pcl 1.8.0并解压】</font></font></p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto"><pre class="notranslate"><code>cd pcl-1.8.0
+mkdir build&amp;&amp;cd build&amp;&amp;cmake-gui ..
+</code></pre><div class="zeroclipboard-container">
+    <clipboard-copy aria-label="Copy" class="ClipboardButton btn btn-invisible js-clipboard-copy m-2 p-0 tooltipped-no-delay d-flex flex-justify-center flex-items-center" data-copy-feedback="Copied!" data-tooltip-direction="w" value="cd pcl-1.8.0
+mkdir build&amp;&amp;cd build&amp;&amp;cmake-gui .." tabindex="0" role="button">
+      <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-copy js-clipboard-copy-icon">
+    <path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path>
+</svg>
+      <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-check js-clipboard-check-icon color-fg-success d-none">
+    <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"></path>
+</svg>
+    </clipboard-copy>
+  </div></div>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">[在 cmake-gui 中配置你的 pcl cmake 选项]</font></font></p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto"><pre class="notranslate"><code>make -j4
+sudo make install
+</code></pre><div class="zeroclipboard-container">
+    <clipboard-copy aria-label="Copy" class="ClipboardButton btn btn-invisible js-clipboard-copy m-2 p-0 tooltipped-no-delay d-flex flex-justify-center flex-items-center" data-copy-feedback="Copied!" data-tooltip-direction="w" value="make -j4
+sudo make install" tabindex="0" role="button">
+      <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-copy js-clipboard-copy-icon">
+    <path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path>
+</svg>
+      <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-check js-clipboard-check-icon color-fg-success d-none">
+    <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"></path>
+</svg>
+    </clipboard-copy>
+  </div></div>
+<h3 tabindex="-1" dir="auto"><a id="user-content-step8-optional-upgrade-your-gazebo-for-simulation" class="anchor" aria-hidden="true" tabindex="-1" href="#step8-optional-upgrade-your-gazebo-for-simulation"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">步骤&lt;8&gt;（可选）升级您的凉亭以进行模拟</font></font></h3>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto"><pre class="notranslate"><code>cd GAAS/simulation
+./upgrade_gazebo.sh
+</code></pre><div class="zeroclipboard-container">
+    <clipboard-copy aria-label="Copy" class="ClipboardButton btn btn-invisible js-clipboard-copy m-2 p-0 tooltipped-no-delay d-flex flex-justify-center flex-items-center" data-copy-feedback="Copied!" data-tooltip-direction="w" value="cd GAAS/simulation
+./upgrade_gazebo.sh" tabindex="0" role="button">
+      <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-copy js-clipboard-copy-icon">
+    <path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path>
+</svg>
+      <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-check js-clipboard-check-icon color-fg-success d-none">
+    <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"></path>
+</svg>
+    </clipboard-copy>
+  </div></div>
+<h2 tabindex="-1" dir="auto"><a id="user-content-getting-started" class="anchor" aria-hidden="true" tabindex="-1" href="#getting-started"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">入门</font></font></h2>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">要构建项目，设置所有依赖项，运行：</font></font></p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto"><pre class="notranslate"><code>./build_all.sh
+</code></pre><div class="zeroclipboard-container">
+    <clipboard-copy aria-label="Copy" class="ClipboardButton btn btn-invisible js-clipboard-copy m-2 p-0 tooltipped-no-delay d-flex flex-justify-center flex-items-center" data-copy-feedback="Copied!" data-tooltip-direction="w" value="./build_all.sh" tabindex="0" role="button">
+      <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-copy js-clipboard-copy-icon">
+    <path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path>
+</svg>
+      <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-check js-clipboard-check-icon color-fg-success d-none">
+    <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"></path>
+</svg>
+    </clipboard-copy>
+  </div></div>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">运行 GAAS_contrib 算法：</font></font></p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto"><pre class="notranslate"><code>cd algorithms
+./run_gaas_contrib_algorithms.sh
+</code></pre><div class="zeroclipboard-container">
+    <clipboard-copy aria-label="Copy" class="ClipboardButton btn btn-invisible js-clipboard-copy m-2 p-0 tooltipped-no-delay d-flex flex-justify-center flex-items-center" data-copy-feedback="Copied!" data-tooltip-direction="w" value="cd algorithms
+./run_gaas_contrib_algorithms.sh" tabindex="0" role="button">
+      <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-copy js-clipboard-copy-icon">
+    <path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path>
+</svg>
+      <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-check js-clipboard-check-icon color-fg-success d-none">
+    <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"></path>
+</svg>
+    </clipboard-copy>
+  </div></div>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">开始模拟（或者玩 rosbag 代替）：</font></font></p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto"><pre class="notranslate"><code>cd simulation&amp;&amp;./scripts/prepare_simulation.sh
+</code></pre><div class="zeroclipboard-container">
+    <clipboard-copy aria-label="Copy" class="ClipboardButton btn btn-invisible js-clipboard-copy m-2 p-0 tooltipped-no-delay d-flex flex-justify-center flex-items-center" data-copy-feedback="Copied!" data-tooltip-direction="w" value="cd simulation&amp;&amp;./scripts/prepare_simulation.sh" tabindex="0" role="button">
+      <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-copy js-clipboard-copy-icon">
+    <path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path>
+</svg>
+      <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-check js-clipboard-check-icon color-fg-success d-none">
+    <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"></path>
+</svg>
+    </clipboard-copy>
+  </div></div>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">或者：</font></font></p>
+<div class="snippet-clipboard-content notranslate position-relative overflow-auto"><pre class="notranslate"><code>rosbag play --clock [path_to_your_rosbag]
+</code></pre><div class="zeroclipboard-container">
+    <clipboard-copy aria-label="Copy" class="ClipboardButton btn btn-invisible js-clipboard-copy m-2 p-0 tooltipped-no-delay d-flex flex-justify-center flex-items-center" data-copy-feedback="Copied!" data-tooltip-direction="w" value="rosbag play --clock [path_to_your_rosbag]" tabindex="0" role="button">
+      <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-copy js-clipboard-copy-icon">
+    <path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path>
+</svg>
+      <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" data-view-component="true" class="octicon octicon-check js-clipboard-check-icon color-fg-success d-none">
+    <path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"></path>
+</svg>
+    </clipboard-copy>
+  </div></div>
+<p dir="auto"><strong><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">并在模拟环境中查看您的 L5 飞行汽车演示！</font></font></strong></p>
+<h2 tabindex="-1" dir="auto"><a id="user-content-license" class="anchor" aria-hidden="true" tabindex="-1" href="#license"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">执照</font></font></h2>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">GAAS 遵循 BSD 3 条款许可。</font></font></p>
+<h2 tabindex="-1" dir="auto"><a id="user-content-features" class="anchor" aria-hidden="true" tabindex="-1" href="#features"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">特征</font></font></h2>
+<ol dir="auto">
+<li>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">具有 32 线激光雷达和立体摄像头的模拟环境。</font></font></p>
+</li>
+<li>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">旋转激光雷达测绘和 NDT 匹配定位。</font></font></p>
+</li>
+</ol>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">查看simulation/README.md 以获取模拟环境设置的更多详细信息。</font></font></p>
+<h2 tabindex="-1" dir="auto"><a id="user-content-roadmap" class="anchor" aria-hidden="true" tabindex="-1" href="#roadmap"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">路线图：</font></font></h2>
+<h4 tabindex="-1" dir="auto"><a id="user-content-1--gazebo-simulation-env-construction-including-spinning-lidars-and-non-repetitive-lidars-and-stereo-cameras" class="anchor" aria-hidden="true" tabindex="-1" href="#1--gazebo-simulation-env-construction-including-spinning-lidars-and-non-repetitive-lidars-and-stereo-cameras"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">1. Gazebo模拟环境搭建，包括旋转激光雷达和非重复激光雷达以及立体相机。</font></font></h4>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">(1). </font><font style="vertical-align: inherit;">Livox Horizo&ZeroWidthSpace;&ZeroWidthSpace;n + 前向立体摄像头——完成。</font></font></p>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">（2）。</font><font style="vertical-align: inherit;">Velodyne HDL-32 + 前向立体摄像头——完成。</font></font></p>
+<h4 tabindex="-1" dir="auto"><a id="user-content-2-accelerate-compiling-and-deployment-of-gaas" class="anchor" aria-hidden="true" tabindex="-1" href="#2-accelerate-compiling-and-deployment-of-gaas"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">2. 加快GAAS的编译和部署。</font></font></h4>
+<h4 tabindex="-1" dir="auto"><a id="user-content-3-implement-some-lidar-mechanicalsolid-state-based-algorithms-and-implement-one-key-start-in-the-simulation-environment" class="anchor" aria-hidden="true" tabindex="-1" href="#3-implement-some-lidar-mechanicalsolid-state-based-algorithms-and-implement-one-key-start-in-the-simulation-environment"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">3、实现一些基于LIDAR（机械/固态）的算法，并在仿真环境中实现一键启动。</font></font></h4>
+<h2 tabindex="-1" dir="auto"><a id="user-content-checklist" class="anchor" aria-hidden="true" tabindex="-1" href="#checklist"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">清单：</font></font></h2>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">(1). </font><font style="vertical-align: inherit;">激光雷达指向图像投影——完成。</font></font></p>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">（2）。</font><font style="vertical-align: inherit;">欧几里得簇提取。</font><font style="vertical-align: inherit;"> - 完毕。</font></font></p>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">（3）。</font><font style="vertical-align: inherit;">基于全球坐标的高精地图构建。</font><font style="vertical-align: inherit;"> - 完毕。</font></font></p>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">（4）。</font><font style="vertical-align: inherit;">NDT激光雷达定位（CPU/Cuda）--完成。</font></font></p>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">（5）。</font><font style="vertical-align: inherit;">下采样节点——完成。</font></font></p>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">（6）。</font><font style="vertical-align: inherit;">A* 路径规划器——完成。</font></font></p>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">（7）。</font><font style="vertical-align: inherit;">重构 px4 Offboard Commander -- 完成。</font></font></p>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">（8）。</font><font style="vertical-align: inherit;">动态障碍生成和重新规划——完成。</font></font></p>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">（9）。</font><font style="vertical-align: inherit;">Jetson AGX Xavier 适配——完成。</font></font></p>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">（10）。</font><font style="vertical-align: inherit;">高清地图中的交互式 GUI 目标选择器——完成。</font></font></p>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">（11）。</font><font style="vertical-align: inherit;">多子图切换--TODO</font></font></p>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">（12）。</font><font style="vertical-align: inherit;">IMU-预积分和高频定位——完成。</font></font></p>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">（13）。</font><font style="vertical-align: inherit;">VTOL 模式切换--TODO。</font></font></p>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">（14）。</font><font style="vertical-align: inherit;">分散式鲁棒地面控制站——TODO。</font></font></p>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">（15）。</font><font style="vertical-align: inherit;">通用飞行控制器状态管理——完成。</font></font></p>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">（16）。</font><font style="vertical-align: inherit;">PX4 状态报告者——完成。</font></font></p>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">（17）。</font><font style="vertical-align: inherit;">HUD 模块——完成。</font></font></p>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">(18)。</font><font style="vertical-align: inherit;">基于 Cuda 的多激光雷达点云 ICP 定位——完成。</font></font></p>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">(19)。</font><font style="vertical-align: inherit;">地面点去除预处理——完成。</font></font></p>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">（20）。</font><font style="vertical-align: inherit;">系统状态监视服务——完成。</font></font></p>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">(21)。</font><font style="vertical-align: inherit;">地面控制站上的 HTTP 服务器 --TODO。</font></font></p>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">(22)。</font><font style="vertical-align: inherit;">多旋转激光雷达支持——完成。</font></font></p>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">(23)。</font><font style="vertical-align: inherit;">Airsim 模拟环境支持——完成。</font></font></p>
+<h2 tabindex="-1" dir="auto"><a id="user-content-current-status" class="anchor" aria-hidden="true" tabindex="-1" href="#current-status"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z"></path></svg></a><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">当前状态：</font></font></h2>
+<p dir="auto"><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">添加飞行阶段管理器模块的逻辑。</font><font style="vertical-align: inherit;">包括飞行阶段传输服务客户端（由任务配置文件触发）和服务器（包括定位模块、飞控指挥模块和目标导航模块）。</font></font></p>
+</article></div>
